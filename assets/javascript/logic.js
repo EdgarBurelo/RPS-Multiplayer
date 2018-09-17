@@ -8,3 +8,34 @@ var config = {
     messagingSenderId: "476067623389"
   };
   firebase.initializeApp(config);
+
+  var dataB = firebase.database();
+
+  
+
+var RPSGame = {
+    "userCreate": function(usrname,usrpass,usremail) {
+        dataB.ref("users").push({
+            name: usrname,
+            pass: usrpass,
+            email: usremail
+        });
+    },
+    "login": function() {
+
+    },
+
+
+};
+
+
+  dataB.ref("users").on("child_added", function(childSnapshot) {
+
+    // Log everything that's coming out of snapshot
+    console.log(childSnapshot.val());
+    
+    
+    // Handle the errors
+  }, function(errorObject) {
+    console.log("Errors handled: " + errorObject.code);
+  });
