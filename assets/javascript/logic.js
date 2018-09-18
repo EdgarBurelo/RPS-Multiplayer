@@ -24,11 +24,13 @@ dataB.ref().on("value", function(childSnapshot) {
   
 
 var RPSGame = {
+    "actualUser":"",
     "numberOfUsrs":0,
     "actualUsers":[],
     "logedinUser":"",
     "activeGames":[],
     "numberofActiveGame":0,
+    "logStatus":false,
     "userGet": function() {
         RPSGame.actualUsers = [];
         dataB.ref("users").on("value", function(childSnapshot) {
@@ -77,10 +79,10 @@ var RPSGame = {
         RPSGame.activeGames = [];
         dataB.ref("games").on("value", function(childSnapshot) {
             // Log everything that's coming out of snapshot
-            console.log(childSnapshot.val());
+            //console.log(childSnapshot.val());
             var result = childSnapshot.val();
             var newArr = Object.getOwnPropertyNames(childSnapshot.val());
-            console.log(newArr);
+            //console.log(newArr);
             RPSGame.numberofActiveGame = Object.getOwnPropertyNames(childSnapshot.val()).length+1;
             $(newArr).each(function(index,element) {
                 //console.log(result[element]);
@@ -94,7 +96,7 @@ var RPSGame = {
         });
     },
     "createGame": function() {
-        //get Both users
+        //get Both users review if they already have one playing game.
         
         // $(RPSGame.actualUsers).each(function(index,element){
         //     console.log(element.userName);
@@ -119,11 +121,40 @@ var RPSGame = {
         //}
         RPSGame.activeGamesGet();
     },
-    "login": function() {
+    "logStatusRev": function() {
+        var localusr = localStorage.getItem("user");
+        console.log(localusr);
+        if(localusr) {
+            console.log("logged");
+            RPSGame.logStatus = true;
+            RPSGame.actualUser = localusr;
+        } else {
+            console.log("not logged");
+        }
+    },
+    "login": function(usr,password) {
+        if(!this.logStatus) {
+            $(this.actualUsers).each(function(index,element) {
+                if(usr == element.userName && password == element.pass) {
+                    RPSGame.logStatus = true;
+                    RPSGame.actualUser = usr;
+                    localStorage.setItem("user", usr);
+                }
+            });
+            if(RPSGame.logStatus) {
+                console.log("you're logged in");
+            } else{
+                console.log("Wrong Usr or pass");
+            }
+        } else {
+            console.log("you're already logged in");
+        }
+    },
+    "logout": function() {
 
     }
-
 };
 
 RPSGame.userGet();
 RPSGame.activeGamesGet();
+RPSGame.logStatusRev();
