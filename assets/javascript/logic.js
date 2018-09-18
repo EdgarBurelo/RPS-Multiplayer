@@ -27,7 +27,10 @@ var RPSGame = {
     "numberOfUsrs":0,
     "actualUsers":[],
     "logedinUser":"",
+    "activeGames":[],
+    "numberofActiveGame":0,
     "userGet": function() {
+        RPSGame.actualUsers = [];
         dataB.ref("users").on("value", function(childSnapshot) {
             // Log everything that's coming out of snapshot
             //console.log(childSnapshot.val());
@@ -67,7 +70,54 @@ var RPSGame = {
         } else {
             console.log("already Exist");
         }
+        RPSGame.userGet();
         
+    },
+    "activeGamesGet":function() {
+        RPSGame.activeGames = [];
+        dataB.ref("games").on("value", function(childSnapshot) {
+            // Log everything that's coming out of snapshot
+            console.log(childSnapshot.val());
+            var result = childSnapshot.val();
+            var newArr = Object.getOwnPropertyNames(childSnapshot.val());
+            console.log(newArr);
+            RPSGame.numberofActiveGame = Object.getOwnPropertyNames(childSnapshot.val()).length+1;
+            $(newArr).each(function(index,element) {
+                //console.log(result[element]);
+                RPSGame.activeGames.push(result[element]);
+            });
+
+            
+            
+        }, function(errorObject) {
+            console.log("Errors handled: " + errorObject.code);
+        });
+    },
+    "createGame": function() {
+        //get Both users
+        
+        // $(RPSGame.actualUsers).each(function(index,element){
+        //     console.log(element.userName);
+        //     arrayComp.push(element.userName);
+        // });
+        // if(arrayComp.indexOf(usrname) == -1) {
+            name = RPSGame.numberofActiveGame+"game";
+        //     console.log(this.numberOfUsrs);
+        //     RPSGame.numberOfUsrs++;
+            dataB.ref("games/"+name).set({
+                Challenger: "N",
+                Challenged: "N",
+                ChallengerChoice:"N",
+                ChallengedChoice: "N",
+                Active:true,
+                winner: 0,
+                loser: 0,
+                date: moment().format("DD-MM-YY")
+            });
+        //} else {
+            //console.log("already Exist");
+        //}
+        RPSGame.activeGamesGet();
     },
     "login": function() {
 
@@ -76,3 +126,4 @@ var RPSGame = {
 };
 
 RPSGame.userGet();
+RPSGame.activeGamesGet();
