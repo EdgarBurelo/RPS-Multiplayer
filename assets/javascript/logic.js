@@ -151,7 +151,13 @@ var RPSGame = {
         }
     },
     "logout": function() {
-
+        if(this.logStatus){
+            localStorage.removeItem("user");
+            this.actualUser="";
+            this.logStatus = false;
+        } else{
+            console.log("You're already logged out!");
+        }
     }
 };
 
