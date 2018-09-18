@@ -25,6 +25,7 @@ dataB.ref().on("value", function(childSnapshot) {
 
 var RPSGame = {
     "actualUser":"",
+    "actualUserGames":[],
     "numberOfUsrs":0,
     "actualUsers":[],
     "logedinUser":"",
@@ -95,7 +96,7 @@ var RPSGame = {
             console.log("Errors handled: " + errorObject.code);
         });
     },
-    "createGame": function() {
+    "createGame": function(challenger,challenged) {
         //get Both users review if they already have one playing game.
         
         // $(RPSGame.actualUsers).each(function(index,element){
@@ -107,11 +108,13 @@ var RPSGame = {
         //     console.log(this.numberOfUsrs);
         //     RPSGame.numberOfUsrs++;
             dataB.ref("games/"+name).set({
-                Challenger: "N",
-                Challenged: "N",
+                gameName: name,
+                Challenger: challenger,
+                Challenged: challenged,
                 ChallengerChoice:"N",
                 ChallengedChoice: "N",
                 Active:true,
+                status:"Challenger",
                 winner: 0,
                 loser: 0,
                 date: moment().format("DD-MM-YY")
@@ -120,6 +123,7 @@ var RPSGame = {
             //console.log("already Exist");
         //}
         RPSGame.activeGamesGet();
+        RPSGame.userGameGet(challenger);
     },
     "logStatusRev": function() {
         var localusr = localStorage.getItem("user");
@@ -128,6 +132,7 @@ var RPSGame = {
             console.log("logged");
             RPSGame.logStatus = true;
             RPSGame.actualUser = localusr;
+            RPSGame.userGameGet(localusr);
         } else {
             console.log("not logged");
         }
@@ -139,6 +144,7 @@ var RPSGame = {
                     RPSGame.logStatus = true;
                     RPSGame.actualUser = usr;
                     localStorage.setItem("user", usr);
+                    RPSGame.userGameGet(usr);
                 }
             });
             if(RPSGame.logStatus) {
@@ -157,6 +163,48 @@ var RPSGame = {
             this.logStatus = false;
         } else{
             console.log("You're already logged out!");
+        }
+    },
+    "startDOM":function() {
+        //generate the login for the user, button select for continue, newgame & General Stats
+    },
+    "continueGameDOM":function() {
+        //Generate the area with options of the games that are active for the user and go back button, 
+    },
+    "newgameDOM":function() {
+        //Generate an automatic search for new challenger and a button to look for other users and a button to create game
+    },
+    "gameDOM":function(game) {
+        //once a game is started or continued, generate the game according to the status
+
+    },
+    "loginDom": function(){
+        //place to login or create newuser
+    },
+    "userSelectOption":function(user,option,game) {
+
+    },
+    "userGameGet":function(user) {
+        if(this.logStatus) {
+            dataB.ref("games").on("value", function(childSnapshot) {
+                // Log everything that's coming out of snapshot
+                //console.log(childSnapshot.val());
+                var result = childSnapshot.val();
+                var newArr = Object.getOwnPropertyNames(childSnapshot.val());
+                //console.log(newArr);
+                $(newArr).each(function(index,element) {
+                    //console.log(result[element]);
+                    if(result[element].Challenged == user || result[element].Challenger == user){
+                        RPSGame.actualUserGames.push(result[element]);
+                    }
+                    //RPSGame.activeGames.push(result[element]);
+                });
+    
+                
+                
+            }, function(errorObject) {
+                console.log("Errors handled: " + errorObject.code);
+            }); 
         }
     }
 };
