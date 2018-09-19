@@ -30,6 +30,7 @@ var RPSGame = {
     "actualUsers":[],
     "logedinUser":"",
     "activeGames":[],
+    "selectedGame":"",
     "numberofActiveGame":0,
     "logStatus":false,
     "userGet": function() {
@@ -111,8 +112,8 @@ var RPSGame = {
                 gameName: name,
                 Challenger: challenger,
                 Challenged: challenged,
-                ChallengerChoice:"N",
-                ChallengedChoice: "N",
+                ChallengerChoice: false,
+                ChallengedChoice: false,
                 Active:true,
                 status:"Challenger",
                 winner: 0,
@@ -181,8 +182,17 @@ var RPSGame = {
     "loginDom": function(){
         //place to login or create newuser
     },
+    "userSelectGame":function(game) {
+        $(RPSGame.actualUserGames).each(function(index,element){
+            if(game == element.gameName) {
+                RPSGame.selectedGame = element;
+            }
+        });
+    },
     "userSelectOption":function(user,option,game) {
-
+        if(user == RPSGame.selectedGame.Challenger && !RPSGame.selectedGame.ChallengerChoice) {
+            //do 
+        }
     },
     "userGameGet":function(user) {
         if(this.logStatus) {
