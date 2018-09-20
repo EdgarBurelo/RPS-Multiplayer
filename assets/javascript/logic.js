@@ -189,13 +189,31 @@ var RPSGame = {
             }
         });
     },
-    "userSelectOption":function(user,option,game) {
+    "userSelectOption":function(user,option) {
         if(user == RPSGame.selectedGame.Challenger && !RPSGame.selectedGame.ChallengerChoice) {
-            //do 
+            console.log("Your choice is: "+option);
+            RPSGame.selectedGame.ChallengerChoice = option;
+            //modify Firebase
+            dataB.ref("games/"+RPSGame.selectedGame.gameName).update({
+                ChallengerChoice: option
+            });
+        } else if(user == RPSGame.selectedGame.Challenged && !RPSGame.selectedGame.ChallengedChoice){
+            console.log("Your choice is: "+option);
+            RPSGame.selectedGame.ChallengedChoice = option;
+            dataB.ref("games/"+RPSGame.selectedGame.gameName).update({
+                ChallengedChoice: option
+            });
+        }else {
+            console.log("already selected");
         }
+        RPSGame.activeGamesGet();
+        RPSGame.userGameGet(user);
+        RPSGame.finishGameEval();
+
     },
     "userGameGet":function(user) {
         if(this.logStatus) {
+            RPSGame.actualUserGames = [];
             dataB.ref("games").on("value", function(childSnapshot) {
                 // Log everything that's coming out of snapshot
                 //console.log(childSnapshot.val());
@@ -215,6 +233,13 @@ var RPSGame = {
             }, function(errorObject) {
                 console.log("Errors handled: " + errorObject.code);
             }); 
+        }
+    },
+    "finishGameEval":function() {
+        if(this.selectedGame.ChallengerChoice != false || this.selectedGame.ChallengedChoice != false) {
+            console.log("finish Game");
+        } else {
+            console.log("Still someone left to choose");
         }
     }
 };
