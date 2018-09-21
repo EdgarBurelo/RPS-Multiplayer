@@ -45,21 +45,23 @@ var RPSGame = {
                 //console.log(result[element]);
                 RPSGame.actualUsers.push(result[element]);
             });
+            RPSGame.numberOfUsrs=RPSGame.actualUsers.length;
             
         }, function(errorObject) {
             console.log("Errors handled: " + errorObject.code);
         });
     },
     "userCreate": function(usrname,usrpass,usremail) {
+        localStorage.removeItem("user");
         var arrayComp = [];
         $(RPSGame.actualUsers).each(function(index,element){
             console.log(element.userName);
             arrayComp.push(element.userName);
         });
+        
         if(arrayComp.indexOf(usrname) == -1) {
-            name = RPSGame.numberOfUsrs+usrname;
+            name = usrname;
             console.log(this.numberOfUsrs);
-            RPSGame.numberOfUsrs++;
             dataB.ref("users/"+name).set({
                 userName: usrname,
                 pass: usrpass,
@@ -71,10 +73,18 @@ var RPSGame = {
                 activeGames: [],
                 date: moment().format("DD-MM-YY")
             });
+            localStorage.setItem("user", usrname);
+            RPSGame.numberOfUsrs++;
+            RPSGame.logStatus = true;
+            RPSGame.actualUser = usrname;
+
         } else {
+            //Bootstrap alert already exist
             console.log("already Exist");
         }
         RPSGame.userGet();
+        
+        //function for loginDOM
         
     },
     "activeGamesGet":function() {
@@ -98,33 +108,41 @@ var RPSGame = {
         });
     },
     "createGame": function(challenger,challenged) {
+        //review both users Exists
+        var arrayComp = [];
+        $(this.actualUsers).each(function(i,ele) {
+            if(ele.userName == challenger || ele.userName == challenged) {
+                arrayComp.push(ele.userName);
+            }
+        });
+        console.log(arrayComp);
         //get Both users review if they already have one playing game.
         
-        // $(RPSGame.actualUsers).each(function(index,element){
-        //     console.log(element.userName);
-        //     arrayComp.push(element.userName);
-        // });
         // if(arrayComp.indexOf(usrname) == -1) {
-            name = RPSGame.numberofActiveGame+"game";
-        //     console.log(this.numberOfUsrs);
-        //     RPSGame.numberOfUsrs++;
-            dataB.ref("games/"+name).set({
-                gameName: name,
-                Challenger: challenger,
-                Challenged: challenged,
-                ChallengerChoice: false,
-                ChallengedChoice: false,
-                Active:true,
-                status:"Challenger",
-                winner: 0,
-                loser: 0,
-                date: moment().format("DD-MM-YY")
-            });
-        //} else {
-            //console.log("already Exist");
-        //}
-        RPSGame.activeGamesGet();
-        RPSGame.userGameGet(challenger);
+        //     name = RPSGame.numberofActiveGame+"game";
+        
+        //     dataB.ref("games/"+name).set({
+        //         gameName: name,
+        //         Challenger: challenger,
+        //         Challenged: challenged,
+        //         ChallengerChoice: false,
+        //         ChallengedChoice: false,
+        //         Active:true,
+        //         status:true,
+        //         winner: 0,
+        //         loser: 0,
+        //         tie:0,
+        //         ChallengerWins:0,
+        //         ChallengedWins:0,
+        //         ChallengedContinue:false,
+        //         ChallengerContinue:false,
+        //         date: moment().format("DD-MM-YY")
+        //     });
+        // //} else {
+        //     //console.log("already Exist");
+        // //}
+        // RPSGame.activeGamesGet();
+        // RPSGame.userGameGet(challenger);
     },
     "logStatusRev": function() {
         var localusr = localStorage.getItem("user");
@@ -172,15 +190,18 @@ var RPSGame = {
     "continueGameDOM":function() {
         //Generate the area with options of the games that are active for the user and go back button, 
     },
-    "newgameDOM":function() {
+    "newGameDOM":function() {
         //Generate an automatic search for new challenger and a button to look for other users and a button to create game
     },
     "gameDOM":function(game) {
         //once a game is started or continued, generate the game according to the status
 
     },
-    "loginDom": function(){
+    "loginDOM": function(){
         //place to login or create newuser
+    },
+    "gameStatsDom": function() {
+
     },
     "userSelectGame":function(game) {
         $(RPSGame.actualUserGames).each(function(index,element){
@@ -197,18 +218,21 @@ var RPSGame = {
             dataB.ref("games/"+RPSGame.selectedGame.gameName).update({
                 ChallengerChoice: option
             });
+            RPSGame.finishGameEval();
         } else if(user == RPSGame.selectedGame.Challenged && !RPSGame.selectedGame.ChallengedChoice){
             console.log("Your choice is: "+option);
             RPSGame.selectedGame.ChallengedChoice = option;
             dataB.ref("games/"+RPSGame.selectedGame.gameName).update({
                 ChallengedChoice: option
             });
+            RPSGame.finishGameEval();
         }else {
             console.log("already selected");
         }
         RPSGame.activeGamesGet();
         RPSGame.userGameGet(user);
-        RPSGame.finishGameEval();
+        RPSGame.userSelectGame(RPSGame.selectedGame.gameName);
+        
 
     },
     "userGameGet":function(user) {
@@ -232,14 +256,69 @@ var RPSGame = {
                 
             }, function(errorObject) {
                 console.log("Errors handled: " + errorObject.code);
-            }); 
+            });
+
         }
     },
     "finishGameEval":function() {
-        if(this.selectedGame.ChallengerChoice != false || this.selectedGame.ChallengedChoice != false) {
+        if(this.selectedGame.ChallengerChoice != false && this.selectedGame.ChallengedChoice != false) {
             console.log("finish Game");
+            
+
+            if(this.selectedGame.ChallengedChoice == this.selectedGame.ChallengerChoice) {
+                dataB.ref("games/"+RPSGame.selectedGame.gameName).update({
+                    tie:"tie"
+                });
+                dataB.ref("users")
+            } else {
+                switch(this.selectedGame.ChallengerChoice) {
+                    case "rock":
+                        if(this.selectedGame.ChallengedChoice == "paper"){
+                            dataB.ref("games/"+RPSGame.selectedGame.gameName).update({
+                                winner: RPSGame.selectedGame.Challenged,
+                                loser: RPSGame.selectedGame.Challenger
+
+                            });
+
+                        } else {
+
+                        }
+                    break;
+                    case "paper":
+                        if(this.selectedGame.ChallengedChoice == "scissors"){
+
+                        } else {
+
+                        }
+                    break;
+                    case "scissors":
+                        if(this.selectedGame.ChallengedChoice == "rock"){
+
+                        } else {
+
+                        }
+                    break;
+
+                }
+
+            }
+            
+            
+            //call gameStatsDom
         } else {
             console.log("Still someone left to choose");
+            //call GameDom
+        }
+    },
+    "continueButton":function() {
+        //set 
+    },
+    "continueEval":function() {
+        if(this.selectedGame.ChallengerContinue && this.selectedGame.ChallengedContinue) {
+            console.log("continue, reset game");
+            
+        } else {
+            console.log("Wait for other player to continue");
         }
     }
 };
