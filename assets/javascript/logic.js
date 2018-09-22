@@ -35,11 +35,12 @@ var RPSGame = {
     "logStatus":false,
     "userGet": function() {
         RPSGame.actualUsers = [];
-        dataB.ref("users").on("value", function(childSnapshot) {
+        dataB.ref("users").once("value").then(function(childSnapshot) {
             // Log everything that's coming out of snapshot
             //console.log(childSnapshot.val());
             var result = childSnapshot.val();
-            var newArr = Object.getOwnPropertyNames(childSnapshot.val());
+            var newArr = [];
+            newArr = Object.getOwnPropertyNames(childSnapshot.val());
             //console.log(newArr);
             $(newArr).each(function(index,element) {
                 //console.log(result[element]);
@@ -52,50 +53,52 @@ var RPSGame = {
         });
     },
     "userCreate": function(usrname,usrpass,usremail) {
-        localStorage.removeItem("user");
-        var arrayComp = [];
-        $(RPSGame.actualUsers).each(function(index,element){
-            console.log(element.userName);
-            arrayComp.push(element.userName);
-        });
-        
-        if(arrayComp.indexOf(usrname) == -1) {
-            name = usrname;
-            console.log(this.numberOfUsrs);
-            dataB.ref("users/"+name).set({
-                userName: usrname,
-                pass: usrpass,
-                email: usremail,
-                wins: 0,
-                loses: 0,
-                playedGames: 0,
-                WLRatio: 0,
-                activeGames: [],
-                date: moment().format("DD-MM-YY")
+        if(!this.logStatus){
+            localStorage.removeItem("user");
+            var arrayComp = [];
+            $(RPSGame.actualUsers).each(function(index,element){
+                console.log(element.userName);
+                arrayComp.push(element.userName);
             });
-            localStorage.setItem("user", usrname);
-            RPSGame.numberOfUsrs++;
-            RPSGame.logStatus = true;
-            RPSGame.actualUser = usrname;
+            
+            if(arrayComp.indexOf(usrname) == -1) {
+                name = usrname;
+                console.log(this.numberOfUsrs);
+                dataB.ref("users/"+name).set({
+                    userName: usrname,
+                    pass: usrpass,
+                    email: usremail,
+                    wins: 0,
+                    loses: 0,
+                    ties:0,
+                    playedGames: 0,
+                    WLRatio: 0,
+                    activeGames: [],
+                    date: moment().format("DD-MM-YY")
+                });
+                localStorage.setItem("user", usrname);
+                RPSGame.numberOfUsrs++;
+                RPSGame.logStatus = true;
+                RPSGame.actualUser = usrname;
 
-        } else {
-            //Bootstrap alert already exist
-            console.log("already Exist");
+            } else {
+                //Bootstrap alert already exist
+                console.log("already Exist");
+            }
+            RPSGame.userGet();
         }
-        RPSGame.userGet();
-        
         //function for loginDOM
         
     },
     "activeGamesGet":function() {
         RPSGame.activeGames = [];
-        dataB.ref("games").on("value", function(childSnapshot) {
+        dataB.ref("games").once("value").then(function(childSnapshot) {
             // Log everything that's coming out of snapshot
             //console.log(childSnapshot.val());
             var result = childSnapshot.val();
             var newArr = Object.getOwnPropertyNames(childSnapshot.val());
             //console.log(newArr);
-            RPSGame.numberofActiveGame = Object.getOwnPropertyNames(childSnapshot.val()).length+1;
+            RPSGame.numberofActiveGame = Object.getOwnPropertyNames(childSnapshot.val()).length;
             $(newArr).each(function(index,element) {
                 //console.log(result[element]);
                 RPSGame.activeGames.push(result[element]);
@@ -110,39 +113,46 @@ var RPSGame = {
     "createGame": function(challenger,challenged) {
         //review both users Exists
         var arrayComp = [];
+        var arrGame = [];
         $(this.actualUsers).each(function(i,ele) {
             if(ele.userName == challenger || ele.userName == challenged) {
                 arrayComp.push(ele.userName);
             }
         });
-        console.log(arrayComp);
+        //console.log(arrayComp.length);
+        $(this.activeGames).each(function(i,ele){
+            if((ele.Challenged == challenged || ele.Challenger == challenged) && (ele.Challenged == challenger || ele.Challenger == challenger)){
+                arrGame.push(ele.gameName);
+            }
+        });
+        //console.log(arrGame.length);
         //get Both users review if they already have one playing game.
         
-        // if(arrayComp.indexOf(usrname) == -1) {
-        //     name = RPSGame.numberofActiveGame+"game";
+        if(arrayComp.length == 2 && arrGame.length == 0) {
+            name = RPSGame.numberofActiveGame+"game";
         
-        //     dataB.ref("games/"+name).set({
-        //         gameName: name,
-        //         Challenger: challenger,
-        //         Challenged: challenged,
-        //         ChallengerChoice: false,
-        //         ChallengedChoice: false,
-        //         Active:true,
-        //         status:true,
-        //         winner: 0,
-        //         loser: 0,
-        //         tie:0,
-        //         ChallengerWins:0,
-        //         ChallengedWins:0,
-        //         ChallengedContinue:false,
-        //         ChallengerContinue:false,
-        //         date: moment().format("DD-MM-YY")
-        //     });
-        // //} else {
-        //     //console.log("already Exist");
-        // //}
-        // RPSGame.activeGamesGet();
-        // RPSGame.userGameGet(challenger);
+            dataB.ref("games/"+name).set({
+                gameName: name,
+                Challenger: challenger,
+                Challenged: challenged,
+                ChallengerChoice: false,
+                ChallengedChoice: false,
+                Active:true,
+                status:true,
+                winner: 0,
+                loser: 0,
+                tie:0,
+                ChallengerWins:0,
+                ChallengedWins:0,
+                ChallengedContinue:false,
+                ChallengerContinue:false,
+                date: moment().format("DD-MM-YY")
+            });
+        } else {
+            console.log("already Exist");
+        }
+        RPSGame.activeGamesGet();
+        RPSGame.userGameGet(challenger);
     },
     "logStatusRev": function() {
         var localusr = localStorage.getItem("user");
@@ -204,11 +214,13 @@ var RPSGame = {
 
     },
     "userSelectGame":function(game) {
+        RPSGame.selectedGame = "";
         $(RPSGame.actualUserGames).each(function(index,element){
             if(game == element.gameName) {
                 RPSGame.selectedGame = element;
             }
         });
+        
     },
     "userSelectOption":function(user,option) {
         if(user == RPSGame.selectedGame.Challenger && !RPSGame.selectedGame.ChallengerChoice) {
@@ -238,7 +250,7 @@ var RPSGame = {
     "userGameGet":function(user) {
         if(this.logStatus) {
             RPSGame.actualUserGames = [];
-            dataB.ref("games").on("value", function(childSnapshot) {
+            dataB.ref("games").once('value').then(function(childSnapshot) {
                 // Log everything that's coming out of snapshot
                 //console.log(childSnapshot.val());
                 var result = childSnapshot.val();
@@ -251,9 +263,6 @@ var RPSGame = {
                     }
                     //RPSGame.activeGames.push(result[element]);
                 });
-    
-                
-                
             }, function(errorObject) {
                 console.log("Errors handled: " + errorObject.code);
             });
@@ -263,46 +272,155 @@ var RPSGame = {
     "finishGameEval":function() {
         if(this.selectedGame.ChallengerChoice != false && this.selectedGame.ChallengedChoice != false) {
             console.log("finish Game");
+            var challengerI=[];
+            var challengedI=[];
+            $(RPSGame.actualUsers).each(function(i,element){
+                if(element.userName == RPSGame.selectedGame.Challenger){
+                    challengerI.push(i);
+                    //console.log(challengerI);
+                }else if(element.userName == RPSGame.selectedGame.Challenged){
+                    challengedI.push(i);
+                }
+                //console.log(element.userName+" "+RPSGame.selectedGame.Challenger);
+            });
             
-
             if(this.selectedGame.ChallengedChoice == this.selectedGame.ChallengerChoice) {
                 dataB.ref("games/"+RPSGame.selectedGame.gameName).update({
-                    tie:"tie"
+                    tie:"tie",
+                    status: false
                 });
-                dataB.ref("users")
+                dataB.ref("users/"+RPSGame.selectedGame.Challenger).update({
+                    ties: RPSGame.actualUsers[challengerI[0]].ties+1,
+                    playedGames:RPSGame.actualUsers[challengerI[0]].playedGames+1
+                });
+                dataB.ref("users/"+RPSGame.selectedGame.Challenger).update({
+                    ties: RPSGame.actualUsers[challengedI[0]].ties+1,
+                    playedGames:RPSGame.actualUsers[challengedI[0]].playedGames+1
+                });
             } else {
                 switch(this.selectedGame.ChallengerChoice) {
                     case "rock":
                         if(this.selectedGame.ChallengedChoice == "paper"){
                             dataB.ref("games/"+RPSGame.selectedGame.gameName).update({
                                 winner: RPSGame.selectedGame.Challenged,
-                                loser: RPSGame.selectedGame.Challenger
-
+                                loser: RPSGame.selectedGame.Challenger,
+                                ChallengedWins: RPSGame.selectedGame.ChallengedWins+1,
+                                status: false
+                            });
+                            dataB.ref("users/"+this.selectedGame.Challenged).update({
+                                wins: RPSGame.actualUsers[challengedI[0]].wins+1,
+                                playedGames:RPSGame.actualUsers[challengedI[0]].playedGames+1,
+                                WLRatio: (RPSGame.actualUsers[challengedI[0]].wins+1)/(RPSGame.actualUsers[challengedI[0]].loses)
+                            });
+                            dataB.ref("users/"+this.selectedGame.Challenger).update({
+                                loses: RPSGame.actualUsers[challengerI[0]].loses+1,
+                                playedGames:RPSGame.actualUsers[challengerI[0]].playedGames+1,
+                                WLRatio: (RPSGame.actualUsers[challengerI[0]].wins)/(RPSGame.actualUsers[challengerI[0]].loses+1)
                             });
 
                         } else {
+                            dataB.ref("games/"+RPSGame.selectedGame.gameName).update({
+                                winner: RPSGame.selectedGame.Challenger,
+                                loser: RPSGame.selectedGame.Challenged,
+                                ChallengerWins: RPSGame.selectedGame.ChallengerWins+1,
+                                status: false
+                            });
+                            dataB.ref("users/"+this.selectedGame.Challenged).update({
+                                loses: RPSGame.actualUsers[challengedI[0]].loses+1,
+                                playedGames:RPSGame.actualUsers[challengedI[0]].playedGames+1,
+                                WLRatio: (RPSGame.actualUsers[challengedI[0]].wins)/(RPSGame.actualUsers[challengedI[0]].loses+1)
+                            });
+                            dataB.ref("users/"+this.selectedGame.Challenger).update({
+                                wins: RPSGame.actualUsers[challengerI[0]].wins+1,
+                                playedGames:RPSGame.actualUsers[challengerI[0]].playedGames+1,
+                                WLRatio: (RPSGame.actualUsers[challengerI[0]].wins+1)/(RPSGame.actualUsers[challengerI[0]].loses)
+                            });
 
                         }
                     break;
                     case "paper":
                         if(this.selectedGame.ChallengedChoice == "scissors"){
-
+                            dataB.ref("games/"+RPSGame.selectedGame.gameName).update({
+                                winner: RPSGame.selectedGame.Challenged,
+                                loser: RPSGame.selectedGame.Challenger,
+                                ChallengedWins: RPSGame.selectedGame.ChallengedWins+1,
+                                status: false
+                            });
+                            dataB.ref("users/"+this.selectedGame.Challenged).update({
+                                wins: RPSGame.actualUsers[challengedI[0]].wins+1,
+                                playedGames:RPSGame.actualUsers[challengedI[0]].playedGames+1,
+                                WLRatio: (RPSGame.actualUsers[challengedI[0]].wins+1)/(RPSGame.actualUsers[challengedI[0]].loses)
+                            });
+                            dataB.ref("users/"+this.selectedGame.Challenger).update({
+                                loses: RPSGame.actualUsers[challengerI[0]].loses+1,
+                                playedGames:RPSGame.actualUsers[challengerI[0]].playedGames+1,
+                                WLRatio: (RPSGame.actualUsers[challengerI[0]].wins)/(RPSGame.actualUsers[challengerI[0]].loses+1)
+                            });
                         } else {
-
+                            dataB.ref("games/"+RPSGame.selectedGame.gameName).update({
+                                winner: RPSGame.selectedGame.Challenger,
+                                loser: RPSGame.selectedGame.Challenged,
+                                ChallengerWins: RPSGame.selectedGame.ChallengerWins+1,
+                                status: false
+                            });
+                            dataB.ref("users/"+this.selectedGame.Challenged).update({
+                                loses: RPSGame.actualUsers[challengedI[0]].loses+1,
+                                playedGames:RPSGame.actualUsers[challengedI[0]].playedGames+1,
+                                WLRatio: (RPSGame.actualUsers[challengedI[0]].wins)/(RPSGame.actualUsers[challengedI[0]].loses+1)
+                            });
+                            dataB.ref("users/"+this.selectedGame.Challenger).update({
+                                wins: RPSGame.actualUsers[challengerI[0]].wins+1,
+                                playedGames:RPSGame.actualUsers[challengerI[0]].playedGames+1,
+                                WLRatio: (RPSGame.actualUsers[challengerI[0]].wins+1)/(RPSGame.actualUsers[challengerI[0]].loses)
+                            });
                         }
                     break;
                     case "scissors":
                         if(this.selectedGame.ChallengedChoice == "rock"){
+                            dataB.ref("games/"+RPSGame.selectedGame.gameName).update({
+                                winner: RPSGame.selectedGame.Challenged,
+                                loser: RPSGame.selectedGame.Challenger,
+                                ChallengedWins: RPSGame.selectedGame.ChallengedWins+1,
+                                status: false
+                            });
+                            dataB.ref("users/"+this.selectedGame.Challenged).update({
+                                wins: RPSGame.actualUsers[challengedI[0]].wins+1,
+                                playedGames:RPSGame.actualUsers[challengedI[0]].playedGames+1,
+                                WLRatio: (RPSGame.actualUsers[challengedI[0]].wins+1)/(RPSGame.actualUsers[challengedI[0]].loses)
+                            });
+                            dataB.ref("users/"+this.selectedGame.Challenger).update({
+                                loses: RPSGame.actualUsers[challengerI[0]].loses+1,
+                                playedGames:RPSGame.actualUsers[challengerI[0]].playedGames+1,
+                                WLRatio: (RPSGame.actualUsers[challengerI[0]].wins)/(RPSGame.actualUsers[challengerI[0]].loses+1)
+                            });
 
                         } else {
+                            dataB.ref("games/"+RPSGame.selectedGame.gameName).update({
+                                winner: RPSGame.selectedGame.Challenger,
+                                loser: RPSGame.selectedGame.Challenged,
+                                ChallengerWins: RPSGame.selectedGame.ChallengerWins+1,
+                                status: false
+                            });
+                            dataB.ref("users/"+this.selectedGame.Challenged).update({
+                                loses: RPSGame.actualUsers[challengedI[0]].loses+1,
+                                playedGames:RPSGame.actualUsers[challengedI[0]].playedGames+1,
+                                WLRatio: (RPSGame.actualUsers[challengedI[0]].wins)/(RPSGame.actualUsers[challengedI[0]].loses+1)
+                            });
+                            dataB.ref("users/"+this.selectedGame.Challenger).update({
+                                wins: RPSGame.actualUsers[challengerI[0]].wins+1,
+                                playedGames:RPSGame.actualUsers[challengerI[0]].playedGames+1,
+                                WLRatio: (RPSGame.actualUsers[challengerI[0]].wins+1)/(RPSGame.actualUsers[challengerI[0]].loses)
+                            });
 
                         }
                     break;
-
                 }
 
             }
-            
+            RPSGame.userGet();
+            RPSGame.activeGamesGet();
+            RPSGame.userGameGet(RPSGame.actualUsers);
+            RPSGame.userSelectGame(RPSGame.selectedGame.gameName);
             
             //call gameStatsDom
         } else {
@@ -311,16 +429,55 @@ var RPSGame = {
         }
     },
     "continueButton":function() {
-        //set 
+        if(!this.selectedGame.status){
+            if(this.selectedGame.Challenged == this.actualUser){
+                this.selectedGame.ChallengedContinue =true;
+                dataB.ref("games/"+RPSGame.selectedGame.gameName).update({
+                    ChallengedContinue:true
+                });
+                RPSGame.continueEval();
+            } else if(this.selectedGame.Challenger == this.actualUser) {
+                this.selectedGame.ChallengerContinue =true;
+                dataB.ref("games/"+RPSGame.selectedGame.gameName).update({
+                    ChallengerContinue:true
+                });
+                RPSGame.continueEval();
+            }
+            
+        }
     },
     "continueEval":function() {
         if(this.selectedGame.ChallengerContinue && this.selectedGame.ChallengedContinue) {
             console.log("continue, reset game");
+            this.selectedGame.status = true;
+            this.selectedGame.ChallengedChoice = false;
+            this.selectedGame.ChallengerChoice = false;
+            this.selectedGame.winner = 0;
+            this.selectedGame.loser = 0;
+            this.selectedGame.tie = 0;
+            this.selectedGame.ChallengedContinue = false;
+            this.selectedGame.ChallengerContinue = false;
+            dataB.ref("games/"+RPSGame.selectedGame.gameName).update({
+                status:true,
+                ChallengedChoice:false,
+                ChallengerChoice:false,
+                winner:0,
+                loser:0,
+                tie:0,
+                ChallengedContinue:false,
+                ChallengerContinue:false,
+
+            });
+            //show general GameDom
             
         } else {
             console.log("Wait for other player to continue");
         }
-    }
+    },
+    "exitGameButton": function() {
+        this.selectedGame = "";
+        //showDashDom
+    }    
 };
 
 RPSGame.userGet();
