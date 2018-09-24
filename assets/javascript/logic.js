@@ -57,7 +57,7 @@ var RPSGame = {
             localStorage.removeItem("user");
             var arrayComp = [];
             $(RPSGame.actualUsers).each(function(index,element){
-                console.log(element.userName);
+                //console.log(element.userName);
                 arrayComp.push(element.userName);
             });
             
@@ -80,10 +80,17 @@ var RPSGame = {
                 RPSGame.numberOfUsrs++;
                 RPSGame.logStatus = true;
                 RPSGame.actualUser = usrname;
+                RPSGame.startDOM();
 
             } else {
                 //Bootstrap alert already exist
                 console.log("already Exist");
+                var alert = $("<div>");
+                alert.attr("class","alert alert-danger");
+                alert.attr("style","text-align:center;");
+                alert.attr("role","alert");
+                alert.html("<h3>The Username is already taken!</h3>");
+                $("#alertRow").append(alert);
             }
             RPSGame.userGet();
         }
@@ -150,6 +157,7 @@ var RPSGame = {
             });
         } else {
             console.log("already Exist");
+            
         }
         RPSGame.activeGamesGet();
         RPSGame.userGameGet(challenger);
@@ -178,8 +186,15 @@ var RPSGame = {
             });
             if(RPSGame.logStatus) {
                 console.log("you're logged in");
+                RPSGame.startDOM();
             } else{
                 console.log("Wrong Usr or pass");
+                var alert = $("<div>");
+                alert.attr("class","alert alert-danger");
+                alert.attr("style","text-align:center;");
+                alert.attr("role","alert");
+                alert.html("<h3>The Username or the Password is Incorrect!</h3>");
+                $("#alertRow").append(alert);
             }
         } else {
             console.log("you're already logged in");
@@ -193,9 +208,31 @@ var RPSGame = {
         } else{
             console.log("You're already logged out!");
         }
+        RPSGame.loginDOM();
     },
     "startDOM":function() {
         //generate the login for the user, button select for continue, newgame & General Stats
+        var target = $("#topRow");
+        target.empty();
+        var nav = $("#loger");
+        nav.empty();
+        var logout = $("<button>");
+        logout.text("Logout");
+        logout.attr("id","logoutBtn");
+        logout.attr("class","btn btn-outline-danger");
+        
+        
+        nav.append(logout);
+        target.attr("class","col-md-10 offset-md-1");
+        var welcome = $('<h1 class="marginTop">Welcome, Plese Select an option:</h1>');
+        
+        target.append(welcome);
+        $("#logoutBtn").on("click",function() {
+            //console.log("alg");
+            event.preventDefault();
+            RPSGame.logout();
+        });
+
     },
     "continueGameDOM":function() {
         //Generate the area with options of the games that are active for the user and go back button, 
@@ -209,6 +246,118 @@ var RPSGame = {
     },
     "loginDOM": function(){
         //place to login or create newuser
+        var nav = $("#loger");
+        nav.empty();
+        var navForm = $("<form>");
+        navForm.attr("class","form-inline my-2 my-lg-0");
+        var navInput1 = $("<input>");
+        navInput1.attr("class","form-control mr-sm-2");
+        navInput1.attr("type","email");
+        navInput1.attr("placeholder","Username");
+        navInput1.attr("id","usrNameP");
+        navForm.append(navInput1);
+        var navInput2 = $("<input>");
+        navInput2.attr("class","form-control mr-sm-2");
+        navInput2.attr("type","password");
+        navInput2.attr("placeholder","Password");
+        navInput2.attr("id","usrPassP");
+        navForm.append(navInput2);
+        var navButton = $("<button>");
+        navButton.attr("class","btn btn-outline-success my-2 my-sm-0");
+        navButton.attr("type","submit");
+        navButton.attr("id","loginBtn");
+        navButton.text("Log In");
+        navForm.append(navButton);
+        nav.append(navForm);
+        
+        var target = $("#topRow");
+        target.empty();
+        target.attr("class","col-md-8 offset-md-2");
+        var title = $("<h1>");
+        title.attr("class","marginTop");
+        title.text("Rock Paper Scissors Online");
+        target.append(title);
+        var plead = $("<p>");
+        plead.attr("class","lead");
+        plead.text("Create your user and Start Playing!");
+        target.append(plead);
+        var areaF = $("<form>");
+        areaF.attr("style","text-align:left;");
+        var div1 = $("<div>");
+        div1.attr("class","form-group");
+        var label1 = $("<label>");
+        label1.attr("for","Email1");
+        label1.text("Email address");
+        var input1 = $("<input>");
+        input1.attr("type","email");
+        input1.attr("class","form-control");
+        input1.attr("id","newEmail");
+        input1.attr("aria-describedby","emailHelp");
+        input1.attr("placeholder","Enter email");
+        div1.append(label1);
+        div1.append(input1);
+        areaF.append(div1);
+        var div2 = $("<div>");
+        div2.attr("class","form-group");
+        var label2 = $("<label>");
+        label2.attr("for","userName");
+        label2.text("Username");
+        var input2 = $("<input>");
+        input2.attr("type","text");
+        input2.attr("class","form-control");
+        input2.attr("id","newUser");
+        input2.attr("placeholder","Enter a Username");
+        div2.append(label2);
+        div2.append(input2);
+        areaF.append(div2);
+        var div3 = $("<div>");
+        div3.attr("class","form-group");
+        var label3 = $("<label>");
+        label3.attr("for","newPass");
+        label3.text("Password");
+        var input3 = $("<input>");
+        input3.attr("type","password");
+        input3.attr("class","form-control");
+        input3.attr("id","newPass");
+        input3.attr("placeholder","Password");
+        div3.append(label3);
+        div3.append(input3);
+        areaF.append(div3);
+        var div4 = $("<div>");
+        div4.attr("style","text-align:center;");
+        var subBtn = $("<button>");
+        subBtn.attr("type","submit");
+        subBtn.attr("class","btn btn-primary marginBottom");
+        subBtn.attr("id","createUser");
+        subBtn.text("Submit");
+        div4.append(subBtn);
+        areaF.append(div4);
+        target.append(areaF);
+        $("#loginBtn").on("click",function(){
+            event.preventDefault();
+            $("#alertRow").empty();
+            var usr = $("#usrNameP").val();
+            var pass = $("#usrPassP").val();
+            $("#usrNameP").val("");
+            $("#usrPassP").val("");
+            //console.log(usr+" "+pass);
+            RPSGame.login(usr,pass);
+    
+        })
+    
+        $("#createUser").on("click",function(){
+            event.preventDefault();
+            $("#alertRow").empty();
+            var Newusr = $("#newUser").val();
+            var Newpass = $("#newPass").val();
+            var NewMail = $("#newEmail").val();
+            $("#newUser").val("");
+            $("#newPass").val("");
+            $("#newEmail").val("");
+            //console.log(Newusr+" "+Newpass+" "+NewMail);
+            RPSGame.userCreate(Newusr,Newpass,NewMail);
+        })
+                
     },
     "gameStatsDom": function() {
 
@@ -483,3 +632,32 @@ var RPSGame = {
 RPSGame.userGet();
 RPSGame.activeGamesGet();
 RPSGame.logStatusRev();
+$(document).ready(function(){
+    $("#loginBtn").on("click",function(){
+        event.preventDefault();
+        $("#alertRow").empty();
+        var usr = $("#usrNameP").val();
+        var pass = $("#usrPassP").val();
+        $("#usrNameP").val("");
+        $("#usrPassP").val("");
+        //console.log(usr+" "+pass);
+        RPSGame.login(usr,pass);
+
+    })
+
+    $("#createUser").on("click",function(){
+        event.preventDefault();
+        $("#alertRow").empty();
+        var Newusr = $("#newUser").val();
+        var Newpass = $("#newPass").val();
+        var NewMail = $("#newEmail").val();
+        $("#newUser").val("");
+        $("#newPass").val("");
+        $("#newEmail").val("");
+        //console.log(Newusr+" "+Newpass+" "+NewMail);
+        RPSGame.userCreate(Newusr,Newpass,NewMail);
+    })
+    if(RPSGame.actualUser) {
+        RPSGame.startDOM();
+    }
+});
