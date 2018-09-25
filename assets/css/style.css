@@ -26,3 +26,22 @@ nav {
 label {
     margin:0;
 }
+
+.dashBtn {
+    border-radius: 8px;
+    border: 1px solid grey;
+    transition-duration: 0.3s;
+    background: rgba(68, 10, 10, 0.26);
+    cursor: pointer;
+}
+
+.dashBtn:hover {
+    background: rgba(68, 10, 10, 0.5);
+    font-size: 19px;
+}
+
+.dashBtn:active {
+    background: rgba(68, 10, 10);
+    font-size: 19px;
+    color: #ffffff;
+}

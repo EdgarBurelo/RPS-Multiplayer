@@ -217,13 +217,40 @@ var RPSGame = {
         logout.text("Logout");
         logout.attr("id","logoutBtn");
         logout.attr("class","btn btn-outline-danger");
-        
-        
         nav.append(logout);
+        
         target.attr("class","col-md-10 offset-md-1");
         var welcome = $('<h1 class="marginTop">Welcome, Plese Select an option:</h1>');
+        var divRow = $("<div>");
+        divRow.attr("class","row");
+        var btn1 = $("<div>");
+        btn1.attr("class","col-md-4 offset-md-1 col-sm-6 dashBtn");
+        btn1.attr("id","continueBtn");
+        var imgBtn1 = $("<img>");
+        imgBtn1.attr("src","./assets/images/piedra.png");
+        imgBtn1.attr("height","200px");
+        imgBtn1.attr("width","auto");
+        var spanBtn1 = $("<span>");
+        spanBtn1.text("Continue");
+        btn1.append(imgBtn1);
+        btn1.append(spanBtn1);
+        var btn2 = $("<div>");
+        btn2.attr("class","col-md-4 offset-md-2 col-sm-6 dashBtn");
+        btn2.attr("id","newGameBtn");
+        var imgBtn2 = $("<img>");
+        imgBtn2.attr("src","./assets/images/Papel.png");
+        imgBtn2.attr("height","200px");
+        imgBtn2.attr("width","auto");
+        var spanBtn2 = $("<span>");
+        spanBtn2.text("New Game");
+        btn2.append(imgBtn2);
+        btn2.append(spanBtn2);
+        divRow.append(btn1);
+        divRow.append(btn2);
         
         target.append(welcome);
+        target.append(divRow);
+
         $("#logoutBtn").on("click",function() {
             //console.log("alg");
             event.preventDefault();
