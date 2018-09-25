@@ -98,7 +98,7 @@ var RPSGame = {
         RPSGame.activeGames = [];
         dataB.ref("games").once("value").then(function(childSnapshot) {
             // Log everything that's coming out of snapshot
-            console.log(childSnapshot.val());
+            //console.log(childSnapshot.val());
             var result = childSnapshot.val();
             var newArr = Object.getOwnPropertyNames(childSnapshot.val());
             //console.log(newArr);
@@ -387,12 +387,26 @@ var RPSGame = {
 
     },
     "userSelectGame":function(game) {
-        RPSGame.selectedGame = "";
-        $(RPSGame.actualUserGames).each(function(index,element){
-            if(game == element.gameName) {
-                RPSGame.selectedGame = element;
-            }
-        });
+        if(this.logStatus) {
+            RPSGame.selectedGame = "";
+            dataB.ref("games").once('value').then(function(childSnapshot) {
+                // Log everything that's coming out of snapshot
+                //console.log(childSnapshot.val());
+                var result = childSnapshot.val();
+                var newArr = Object.getOwnPropertyNames(childSnapshot.val());
+                //console.log(newArr);
+                $(newArr).each(function(index,element) {
+                    //console.log(result[element]);
+                    if((result[element].Challenged == RPSGame.actualUser || result[element].Challenger == RPSGame.actualUser)&& result[element].gameName == game){
+                        RPSGame.selectedGame =result[element];
+                    }
+                    //RPSGame.activeGames.push(result[element]);
+                });
+            }, function(errorObject) {
+                console.log("Errors handled: " + errorObject.code);
+            });
+
+        }
         
     },
     "userSelectOption":function(user,option) {
@@ -414,8 +428,7 @@ var RPSGame = {
         }else {
             console.log("already selected");
         }
-        RPSGame.activeGamesGet();
-        RPSGame.userGameGet(user);
+        
         
         
 
@@ -425,7 +438,7 @@ var RPSGame = {
             RPSGame.actualUserGames = [];
             dataB.ref("games").once('value').then(function(childSnapshot) {
                 // Log everything that's coming out of snapshot
-                console.log(childSnapshot.val());
+                //console.log(childSnapshot.val());
                 var result = childSnapshot.val();
                 var newArr = Object.getOwnPropertyNames(childSnapshot.val());
                 //console.log(newArr);
@@ -593,19 +606,21 @@ var RPSGame = {
             RPSGame.userGet();
             RPSGame.activeGamesGet();
             RPSGame.userGameGet(RPSGame.actualUsers);
-            /*RPSGame.userSelectGame(RPSGame.selectedGame.gameName);
-            Reprogramar el userGameGet para obtener la info de la bd*/
+            RPSGame.userSelectGame(RPSGame.selectedGame.gameName);
+            
 
 
             //call gameStatsDom
         } else {
             console.log("Still someone left to choose");
             //call GameDom
+            RPSGame.activeGamesGet();
+            RPSGame.userGameGet(RPSGame.actualUser);
         }
     },
     "continueButton":function() {
         if(!this.selectedGame.status){
-            console.log("entre");
+            
             if(this.selectedGame.Challenged == this.actualUser){
                 this.selectedGame.ChallengedContinue =true;
                 dataB.ref("games/"+RPSGame.selectedGame.gameName).update({
