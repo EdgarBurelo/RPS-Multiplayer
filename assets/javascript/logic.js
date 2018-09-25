@@ -10,18 +10,15 @@ var config = {
   firebase.initializeApp(config);
 
 var dataB = firebase.database();
-dataB.ref().on("value", function(childSnapshot) {
+dataB.ref().once("value").then(function(childSnapshot) {
     // Log everything that's coming out of snapshot
     //console.log(childSnapshot.val());
     var users1 = childSnapshot.val().users;
     //console.log(Object.getOwnPropertyNames(users1).length);
     RPSGame.numberOfUsrs = Object.getOwnPropertyNames(users1).length+1;
-    
-    
 }, function(errorObject) {
     console.log("Errors handled: " + errorObject.code);
 });
-  
 
 var RPSGame = {
     "actualUser":"",
@@ -569,8 +566,10 @@ var RPSGame = {
             RPSGame.userGet();
             RPSGame.activeGamesGet();
             RPSGame.userGameGet(RPSGame.actualUsers);
-            RPSGame.userSelectGame(RPSGame.selectedGame.gameName);
-            
+            /*RPSGame.userSelectGame(RPSGame.selectedGame.gameName);
+            Reprogramar el userGameGet para obtener la info de la bd*/
+
+
             //call gameStatsDom
         } else {
             console.log("Still someone left to choose");
@@ -644,7 +643,7 @@ $(document).ready(function(){
         //console.log(usr+" "+pass);
         RPSGame.login(usr,pass);
 
-    })
+    });
 
     $("#createUser").on("click",function(){
         event.preventDefault();
@@ -657,7 +656,8 @@ $(document).ready(function(){
         $("#newEmail").val("");
         //console.log(Newusr+" "+Newpass+" "+NewMail);
         RPSGame.userCreate(Newusr,Newpass,NewMail);
-    })
+    });
+
     if(RPSGame.actualUser) {
         RPSGame.startDOM();
     }
