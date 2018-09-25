@@ -101,7 +101,7 @@ var RPSGame = {
         RPSGame.activeGames = [];
         dataB.ref("games").once("value").then(function(childSnapshot) {
             // Log everything that's coming out of snapshot
-            //console.log(childSnapshot.val());
+            console.log(childSnapshot.val());
             var result = childSnapshot.val();
             var newArr = Object.getOwnPropertyNames(childSnapshot.val());
             //console.log(newArr);
@@ -392,7 +392,7 @@ var RPSGame = {
         }
         RPSGame.activeGamesGet();
         RPSGame.userGameGet(user);
-        RPSGame.userSelectGame(RPSGame.selectedGame.gameName);
+        
         
 
     },
@@ -401,7 +401,7 @@ var RPSGame = {
             RPSGame.actualUserGames = [];
             dataB.ref("games").once('value').then(function(childSnapshot) {
                 // Log everything that's coming out of snapshot
-                //console.log(childSnapshot.val());
+                console.log(childSnapshot.val());
                 var result = childSnapshot.val();
                 var newArr = Object.getOwnPropertyNames(childSnapshot.val());
                 //console.log(newArr);
@@ -459,12 +459,12 @@ var RPSGame = {
                             dataB.ref("users/"+this.selectedGame.Challenged).update({
                                 wins: RPSGame.actualUsers[challengedI[0]].wins+1,
                                 playedGames:RPSGame.actualUsers[challengedI[0]].playedGames+1,
-                                WLRatio: (RPSGame.actualUsers[challengedI[0]].wins+1)/(RPSGame.actualUsers[challengedI[0]].loses)
+                                WLRatio: (RPSGame.actualUsers[challengedI[0]].wins+1)/(RPSGame.actualUsers[challengedI[0]].playedGames+1)
                             });
                             dataB.ref("users/"+this.selectedGame.Challenger).update({
                                 loses: RPSGame.actualUsers[challengerI[0]].loses+1,
                                 playedGames:RPSGame.actualUsers[challengerI[0]].playedGames+1,
-                                WLRatio: (RPSGame.actualUsers[challengerI[0]].wins)/(RPSGame.actualUsers[challengerI[0]].loses+1)
+                                WLRatio: (RPSGame.actualUsers[challengerI[0]].wins)/(RPSGame.actualUsers[challengerI[0]].playedGames+1)
                             });
 
                         } else {
@@ -477,12 +477,12 @@ var RPSGame = {
                             dataB.ref("users/"+this.selectedGame.Challenged).update({
                                 loses: RPSGame.actualUsers[challengedI[0]].loses+1,
                                 playedGames:RPSGame.actualUsers[challengedI[0]].playedGames+1,
-                                WLRatio: (RPSGame.actualUsers[challengedI[0]].wins)/(RPSGame.actualUsers[challengedI[0]].loses+1)
+                                WLRatio: (RPSGame.actualUsers[challengedI[0]].wins)/(RPSGame.actualUsers[challengedI[0]].playedGames+1)
                             });
                             dataB.ref("users/"+this.selectedGame.Challenger).update({
                                 wins: RPSGame.actualUsers[challengerI[0]].wins+1,
                                 playedGames:RPSGame.actualUsers[challengerI[0]].playedGames+1,
-                                WLRatio: (RPSGame.actualUsers[challengerI[0]].wins+1)/(RPSGame.actualUsers[challengerI[0]].loses)
+                                WLRatio: (RPSGame.actualUsers[challengerI[0]].wins+1)/(RPSGame.actualUsers[challengerI[0]].playedGames+1)
                             });
 
                         }
@@ -498,12 +498,12 @@ var RPSGame = {
                             dataB.ref("users/"+this.selectedGame.Challenged).update({
                                 wins: RPSGame.actualUsers[challengedI[0]].wins+1,
                                 playedGames:RPSGame.actualUsers[challengedI[0]].playedGames+1,
-                                WLRatio: (RPSGame.actualUsers[challengedI[0]].wins+1)/(RPSGame.actualUsers[challengedI[0]].loses)
+                                WLRatio: (RPSGame.actualUsers[challengedI[0]].wins+1)/(RPSGame.actualUsers[challengedI[0]].playedGames+1)
                             });
                             dataB.ref("users/"+this.selectedGame.Challenger).update({
                                 loses: RPSGame.actualUsers[challengerI[0]].loses+1,
                                 playedGames:RPSGame.actualUsers[challengerI[0]].playedGames+1,
-                                WLRatio: (RPSGame.actualUsers[challengerI[0]].wins)/(RPSGame.actualUsers[challengerI[0]].loses+1)
+                                WLRatio: (RPSGame.actualUsers[challengerI[0]].wins)/(RPSGame.actualUsers[challengerI[0]].playedGames+1)
                             });
                         } else {
                             dataB.ref("games/"+RPSGame.selectedGame.gameName).update({
@@ -515,12 +515,12 @@ var RPSGame = {
                             dataB.ref("users/"+this.selectedGame.Challenged).update({
                                 loses: RPSGame.actualUsers[challengedI[0]].loses+1,
                                 playedGames:RPSGame.actualUsers[challengedI[0]].playedGames+1,
-                                WLRatio: (RPSGame.actualUsers[challengedI[0]].wins)/(RPSGame.actualUsers[challengedI[0]].loses+1)
+                                WLRatio: (RPSGame.actualUsers[challengedI[0]].wins)/(RPSGame.actualUsers[challengedI[0]].playedGames+1)
                             });
                             dataB.ref("users/"+this.selectedGame.Challenger).update({
                                 wins: RPSGame.actualUsers[challengerI[0]].wins+1,
                                 playedGames:RPSGame.actualUsers[challengerI[0]].playedGames+1,
-                                WLRatio: (RPSGame.actualUsers[challengerI[0]].wins+1)/(RPSGame.actualUsers[challengerI[0]].loses)
+                                WLRatio: (RPSGame.actualUsers[challengerI[0]].wins+1)/(RPSGame.actualUsers[challengerI[0]].playedGames+1)
                             });
                         }
                     break;
@@ -535,12 +535,12 @@ var RPSGame = {
                             dataB.ref("users/"+this.selectedGame.Challenged).update({
                                 wins: RPSGame.actualUsers[challengedI[0]].wins+1,
                                 playedGames:RPSGame.actualUsers[challengedI[0]].playedGames+1,
-                                WLRatio: (RPSGame.actualUsers[challengedI[0]].wins+1)/(RPSGame.actualUsers[challengedI[0]].loses)
+                                WLRatio: (RPSGame.actualUsers[challengedI[0]].wins+1)/(RPSGame.actualUsers[challengedI[0]].playedGames+1)
                             });
                             dataB.ref("users/"+this.selectedGame.Challenger).update({
                                 loses: RPSGame.actualUsers[challengerI[0]].loses+1,
                                 playedGames:RPSGame.actualUsers[challengerI[0]].playedGames+1,
-                                WLRatio: (RPSGame.actualUsers[challengerI[0]].wins)/(RPSGame.actualUsers[challengerI[0]].loses+1)
+                                WLRatio: (RPSGame.actualUsers[challengerI[0]].wins)/(RPSGame.actualUsers[challengerI[0]].playedGames+1)
                             });
 
                         } else {
@@ -553,12 +553,12 @@ var RPSGame = {
                             dataB.ref("users/"+this.selectedGame.Challenged).update({
                                 loses: RPSGame.actualUsers[challengedI[0]].loses+1,
                                 playedGames:RPSGame.actualUsers[challengedI[0]].playedGames+1,
-                                WLRatio: (RPSGame.actualUsers[challengedI[0]].wins)/(RPSGame.actualUsers[challengedI[0]].loses+1)
+                                WLRatio: (RPSGame.actualUsers[challengedI[0]].wins)/(RPSGame.actualUsers[challengedI[0]].playedGames+1)
                             });
                             dataB.ref("users/"+this.selectedGame.Challenger).update({
                                 wins: RPSGame.actualUsers[challengerI[0]].wins+1,
                                 playedGames:RPSGame.actualUsers[challengerI[0]].playedGames+1,
-                                WLRatio: (RPSGame.actualUsers[challengerI[0]].wins+1)/(RPSGame.actualUsers[challengerI[0]].loses)
+                                WLRatio: (RPSGame.actualUsers[challengerI[0]].wins+1)/(RPSGame.actualUsers[challengerI[0]].playedGames+1)
                             });
 
                         }
@@ -579,6 +579,7 @@ var RPSGame = {
     },
     "continueButton":function() {
         if(!this.selectedGame.status){
+            console.log("entre");
             if(this.selectedGame.Challenged == this.actualUser){
                 this.selectedGame.ChallengedContinue =true;
                 dataB.ref("games/"+RPSGame.selectedGame.gameName).update({
