@@ -1,7 +1,7 @@
 # RPS-Multiplayer
 
 Rock, Paper, Scissors Multiplayer game. You can play with friends or users in the web. Create a users and start playing.
-<br>Link: <a href="https://github.com/EdgarBurelo/RPS-Multiplayer/settings" target="_blank">RPS-Multiplayer</a>
+<br>Link: <a href="https://edgarburelo.github.io/RPS-Multiplayer/" target="_blank">RPS-Multiplayer</a>
 
 # Instructions
 Once you created a user, the main dashboard will display. You have two options:
