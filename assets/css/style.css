@@ -12,14 +12,16 @@ nav {
     margin-top: 10px;
 }
 #topRow { 
-    text-align: center;
+    
     margin-top: 40px;
     min-height: 300px;
     background: #ffffff;
     border-radius: 10px;
 
 }
-
+.topCont{
+    text-align: center;
+}
 .marginBottom {
     margin-bottom: 10px;
 }
@@ -43,5 +45,94 @@ label {
 .dashBtn:active {
     background: rgba(68, 10, 10);
     font-size: 19px;
+    color: #ffffff;
+}
+
+.ctnGame {
+    border-radius: 8px;
+    border: 1px solid grey;
+    cursor: pointer;
+    height: 50px;
+    margin-bottom: 20px;
+    background: rgb(0, 89, 172);
+    color: #ffffffbd;
+    /* padding-top: 12.5px; */
+    
+}
+
+.spanGame{
+    margin: 15px;
+    text-align: center;
+}
+
+.ctnGame:hover {
+    background: rgba(10, 40, 68, 0.5);
+    
+}
+
+.ctnGame:active {
+    background: rgb(15, 4, 65);
+    color: #ffffff;
+}
+
+.gameBtn {
+    border-radius: 8px;
+    border: 1px solid grey;
+    transition-duration: 0.3s;
+    background: rgba(68, 10, 10, 0.26);
+    cursor: pointer;
+}
+
+.gameBtn:hover {
+    background: rgba(68, 10, 10, 0.5);
+    
+}
+
+.gameBtn:active {
+    background: rgba(68, 10, 10);
+    color: #ffffff;
+}
+
+.game2Btn {
+    border-radius: 8px;
+    border: 1px solid grey;
+    transition-duration: 0.3s;
+    background: rgba(68, 10, 10, 0.048);
+    
+}
+
+.game2BtnSel {
+    border-radius: 8px;
+    border: 1px solid grey;
+    transition-duration: 0.3s;
+    background: rgb(68, 10, 10);
+    color: #ffffff;
+}
+
+.statsDash {
+    border-radius: 8px;
+    border: 1px solid grey;
+    transition-duration: 0.3s;
+    background: rgba(68, 10, 10, 0.26);
+    margin-bottom: 15px;
+}
+
+.newGame {
+    border-radius: 8px;
+    border: 1px solid grey;
+    cursor: pointer;
+    height: 50px;
+    margin-bottom: 20px;
+    background: rgb(0, 89, 172);
+    color: #ffffffbd;
+}
+
+.newGame:hover {
+    background: rgba(10, 40, 68, 0.5);
+    
+}
+
+.newGame:active {
+    background: rgb(15, 4, 65);
     color: #ffffff;
 }

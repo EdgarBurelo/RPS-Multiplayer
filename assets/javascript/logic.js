@@ -152,8 +152,17 @@ var RPSGame = {
                 ChallengerContinue:false,
                 date: moment().format("DD-MM-YY")
             });
+            //cargar el juego
+            RPSGame.userSelectGame(name);
         } else {
             console.log("already Exist");
+            $("#alertRow").empty();
+            var alert = $("<div>");
+            alert.attr("class","alert alert-danger");
+            alert.attr("style","text-align:center;");
+            alert.attr("role","alert");
+            alert.html("<h3>You already have a game with that player!</h3>");
+            $("#alertRow").append(alert);
             
         }
         RPSGame.activeGamesGet();
@@ -166,7 +175,7 @@ var RPSGame = {
             console.log("logged");
             RPSGame.logStatus = true;
             RPSGame.actualUser = localusr;
-            RPSGame.userGameGet(localusr);
+            //RPSGame.userGameGet(localusr);
         } else {
             console.log("not logged");
         }
@@ -178,7 +187,7 @@ var RPSGame = {
                     RPSGame.logStatus = true;
                     RPSGame.actualUser = usr;
                     localStorage.setItem("user", usr);
-                    RPSGame.userGameGet(usr);
+                    
                 }
             });
             if(RPSGame.logStatus) {
@@ -209,6 +218,8 @@ var RPSGame = {
     },
     "startDOM":function() {
         //generate the login for the user, button select for continue, newgame & General Stats
+        $("#alertRow").empty();
+        RPSGame.userGameGet(RPSGame.actualUser);
         var target = $("#topRow");
         target.empty();
         var nav = $("#loger");
@@ -219,7 +230,7 @@ var RPSGame = {
         logout.attr("class","btn btn-outline-danger");
         nav.append(logout);
         
-        target.attr("class","col-md-10 offset-md-1");
+        target.attr("class","col-md-10 offset-md-1 topCont");
         var welcome = $('<h1 class="marginTop">Welcome, Plese Select an option:</h1>');
         var divRow = $("<div>");
         divRow.attr("class","row");
@@ -256,17 +267,201 @@ var RPSGame = {
             event.preventDefault();
             RPSGame.logout();
         });
+        $("#continueBtn").on("click",function() {
+            //console.log("alg");
+            event.preventDefault();
+            RPSGame.continueGameDOM();
+        });
+
+        $("#newGameBtn").on("click",function() {
+            //console.log("alg");
+            event.preventDefault();
+            RPSGame.newGameDOM();
+        });
 
     },
     "continueGameDOM":function() {
-        //Generate the area with options of the games that are active for the user and go back button, 
+        //Generate the area with options of the games that are active for the user and go back button,
+        $("#alertRow").empty();
+        var target = $("#topRow");
+        target.empty(); 
+        target.attr("class","col-md-10 offset-md-1 topCont");
+        var titleA = $('<h1 class="marginTop">Select a Game to Continue:</h1>');
+        var divRow = $("<div>");
+        divRow.attr("class","row");
+
+        if(this.actualUserGames.length >0) {
+            $(this.actualUserGames).each(function(index,element){
+                if(index % 2 == 0 || index == 0){
+                    var gameDiv = $('<div class="col-md-4 offset-md-1 ctnGame">');
+                } else {
+                    var gameDiv = $('<div class="col-md-4 offset-md-2 ctnGame">');
+                }
+                gameDiv.attr("id",element.gameName);
+                var titG = $('<h5 style="text-align: center; margin:1px;">');
+                titG.text(element.Challenger+" vs "+element.Challenged);
+                var spanA = $('<span class="spanGame">');
+                if(element.status){
+                    spanA.text("Playing");
+                } else {
+                    spanA.text("Finish Stats");
+                }
+                var spanB = $('<span class="spanGame">');
+                var text = element.Challenged == RPSGame.actualUser ? element.ChallengedChoice == false ? "Choose Option" : element.ChallengedChoice : element.Challenger == RPSGame.actualUser ? element.ChallengerChoice == false? "Choose Option": element.ChallengerChoice:"What?";
+                spanB.text(text);
+                gameDiv.append(titG);
+                gameDiv.append(spanA);
+                gameDiv.append(spanB);
+                divRow.append(gameDiv);
+            });
+
+        }
+        target.append(titleA);
+        target.append(divRow);
+
+        var backBtn = $('<button type="submit" class="btn btn-danger marginBottom" id="startDom">Back</button>');
+        target.append(backBtn);
+        
+        $("#startDom").on("click",function() {
+            event.preventDefault();
+            RPSGame.startDOM();
+            
+        });
+        $(".ctnGame").on("click",function(event) {
+            
+            //console.log(event.currentTarget.id);
+            var gameSel = event.currentTarget.id;
+            RPSGame.userSelectGame(gameSel);
+            
+        });
+
     },
     "newGameDOM":function() {
         //Generate an automatic search for new challenger and a button to look for other users and a button to create game
-    },
-    "gameDOM":function(game) {
-        //once a game is started or continued, generate the game according to the status
+        var target = $("#topRow");
+        target.empty(); 
+        target.attr("class","col-md-10 offset-md-1 topCont");
+        var titleA = $('<h1 class="marginTop">Choose a Player to create Game:</h1>');
+        var divRow = $("<div>");
+        divRow.attr("class","row");
 
+        if(this.actualUsers.length >0) {
+            var val = 0;
+            $(this.actualUsers).each(function(index,element){
+                if(element.userName != RPSGame.actualUser){
+                    if(val % 2 == 0 || val == 0){
+                        var usrDiv = $('<div class="col-md-4 offset-md-1 newGame">');
+                    } else {
+                        var usrDiv = $('<div class="col-md-4 offset-md-2 newGame">');
+                    }
+                    usrDiv.attr("id",element.userName);
+                    var titG = $('<h5 style="text-align: center; margin:1px;">');
+                    titG.text(element.userName);
+                    var spanA = $('<span class="spanGame">');
+                    spanA.text("Wins: "+element.wins);
+                    var spanB = $('<span class="spanGame">');
+                    spanB.text("Loses: "+element.loses);
+                    usrDiv.append(titG);
+                    usrDiv.append(spanA);
+                    usrDiv.append(spanB);
+                    divRow.append(usrDiv);
+                    val++;
+                }
+            });
+
+        }
+        target.append(titleA);
+        target.append(divRow);
+
+        var backBtn = $('<button type="submit" class="btn btn-danger marginBottom" id="startDom">Back</button>');
+        target.append(backBtn);
+        
+        $("#startDom").on("click",function() {
+            event.preventDefault();
+            RPSGame.startDOM();
+            
+        });
+        $(".newGame").on("click",function(event) {
+            console.log(event.currentTarget.id);
+            var userSel = event.currentTarget.id;
+            RPSGame.createGame(RPSGame.actualUser,userSel);
+            
+        });
+    },
+    "gameDOM":function() {
+        //once a game is started or continued, generate the game according to the status
+        if(RPSGame.selectedGame.Challenger == RPSGame.actualUser && RPSGame.selectedGame.ChallengerChoice != false) {
+            var optionSelected = RPSGame.selectedGame.ChallengerChoice;
+        } else if(RPSGame.selectedGame.Challenged == RPSGame.actualUser && RPSGame.selectedGame.ChallengedChoice != false){
+            var optionSelected = RPSGame.selectedGame.ChallengedChoice;
+        }
+        var target = $("#topRow");
+        target.empty(); 
+        target.attr("class","col-md-10 offset-md-1 topCont");
+        var titleA = $('<h1 class="marginTop">');
+        if(optionSelected){
+            titleA.text('You already selected '+optionSelected +'!');
+        } else {
+            titleA.text('Select Rock Paper or Scissors!');
+        }
+        
+        var divRow = $("<div>");
+        divRow.attr("class","row");
+        var images = ["./assets/images/piedra.png","./assets/images/Papel.png","./assets/images/tijeras2.png"];
+        var option = ["rock","paper","scissors"];
+
+        
+        //console.log(optionSelected);
+        $(images).each(function(index,ele){
+            if (index == 0){
+                var imgDiv = $('<div class="col-md-2 offset-md-2 col-sm-4">');    
+            } else {
+                var imgDiv = $('<div class="col-md-2 offset-md-1 col-sm-4">');
+            }
+
+            if(optionSelected){
+                if(optionSelected == option[index]){
+                    imgDiv.addClass("game2BtnSel");
+                } else{
+                    imgDiv.addClass("game2Btn");
+                }
+            } else{
+                imgDiv.addClass("gameBtn");
+            }
+            imgDiv.attr("id",option[index]);
+            var imgTag = $('<img height="100px" width="auto">');
+            imgTag.attr("src",ele);
+            var spanIm = $('<span>');
+            spanIm.text(option[index]);
+            imgDiv.append(imgTag);
+            imgDiv.append(spanIm);
+            divRow.append(imgDiv);
+        });
+        target.append(titleA);
+        target.append(divRow);
+        if(this.actualUser == this.selectedGame.Challenged && !this.selectedGame.ChallengerChoice){
+            var titleB = $('<h3 class="marginTop">Wait for the other Player to Choose!</h3>');
+        } else if(this.actualUser == this.selectedGame.Challenger && !this.selectedGame.ChallengedChoice){
+            var titleB = $('<h3 class="marginTop">Wait for the other Player to Choose!</h3>');
+        } else {
+            var titleB = $('<h3 class="marginTop">The other player already chose!</h3>');
+        }
+        target.append(titleB);
+        var backBtn = $('<button type="submit" class="btn btn-danger marginBottom" id="startDom">Back</button>');
+        target.append(backBtn);
+        
+        $("#startDom").on("click",function() {
+            event.preventDefault();
+            RPSGame.startDOM();
+            
+        });
+
+        $(".gameBtn").on("click",function(event) {
+            //console.log(event.currentTarget.id);
+            var selOp = event.currentTarget.id
+            RPSGame.userSelectOption(RPSGame.actualUser,selOp);
+            
+        });
     },
     "loginDOM": function(){
         //place to login or create newuser
@@ -296,7 +491,7 @@ var RPSGame = {
         
         var target = $("#topRow");
         target.empty();
-        target.attr("class","col-md-8 offset-md-2");
+        target.attr("class","col-md-8 offset-md-2 topCont");
         var title = $("<h1>");
         title.attr("class","marginTop");
         title.text("Rock Paper Scissors Online");
@@ -367,7 +562,7 @@ var RPSGame = {
             //console.log(usr+" "+pass);
             RPSGame.login(usr,pass);
     
-        })
+        });
     
         $("#createUser").on("click",function(){
             event.preventDefault();
@@ -380,10 +575,129 @@ var RPSGame = {
             $("#newEmail").val("");
             //console.log(Newusr+" "+Newpass+" "+NewMail);
             RPSGame.userCreate(Newusr,Newpass,NewMail);
-        })
+        });
                 
     },
     "gameStatsDom": function() {
+        var target = $("#topRow");
+        target.empty(); 
+        var titleA = $('<h1 class="marginTop">');
+        if(this.selectedGame.tie == "tie"){
+            titleA.text("It's a Tie");
+        } else {
+            titleA.text("The winner is: " + this.selectedGame.winner);
+        }
+        var divRow = $("<div>");
+        divRow.attr("class","row");
+        
+        var challengerDiv = $('<div class="col-md-4 offset-md-1 col-sm-4 statsDash" id="challengerDiv">');
+        var challengerH = $('<h4>');
+        challengerH.text("Challenger: "+this.selectedGame.Challenger+" Selected:");
+        var br = $('<br>');
+        var imgC = $('<img height="100px" width="auto">');
+        imgC.attr("src",RPSGame.img[RPSGame.selectedGame.ChallengerChoice]);
+        var selPChllr = $("<p>");
+        selPChllr.text(RPSGame.selectedGame.ChallengerChoice);
+        var chllrWin = $("<p>");
+        chllrWin.text("Challenger Wins: "+RPSGame.selectedGame.ChallengerWins);
+        if(this.actualUser == this.selectedGame.Challenger){
+            if(this.selectedGame.ChallengerContinue){
+                var chllrBtn = $('<button type="submit" class="btn btn-primary marginBottom" id="ctnBtn" disabled>Continue</button>');
+            } else {
+                var chllrBtn = $('<button type="submit" class="btn btn-primary marginBottom" id="ctnBtn">Continue</button>');
+            }
+            
+        } else {
+            if(this.selectedGame.ChallengerContinue){
+                var chllrBtn = $('<button type="submit" class="btn btn-primary marginBottom" id="ctnBtn" disabled>Player ready</button>');
+            } else {
+                var chllrBtn = $('<button type="submit" class="btn btn-primary marginBottom" id="ctnBtn" disabled>Waiting Player</button>');
+            }
+        }
+        challengerDiv.append(challengerH);
+        challengerDiv.append(br);
+        challengerDiv.append(imgC);
+        challengerDiv.append(selPChllr);
+        challengerDiv.append(chllrWin);
+        challengerDiv.append(chllrBtn);
+        divRow.append(challengerDiv);
+
+        var challengedDiv = $('<div class="col-md-4 offset-md-1 col-sm-4 statsDash" id="challengedDiv">');
+        var challengedH = $('<h4>');
+        challengedH.text("Challenged: "+this.selectedGame.Challenged+" Selected:");
+        
+        var imgD = $('<img height="100px" width="auto">');
+        imgD.attr("src",RPSGame.img[RPSGame.selectedGame.ChallengedChoice]);
+        var selPChlld = $("<p>");
+        selPChlld.text(RPSGame.selectedGame.ChallengedChoice);
+        var chlldWin = $("<p>");
+        chlldWin.text("Challenged Wins: "+RPSGame.selectedGame.ChallengedWins);
+        if(this.actualUser == this.selectedGame.Challenged){
+            if(RPSGame.selectedGame.ChallengedContinue){
+                var chlldBtn = $('<button type="submit" class="btn btn-primary marginBottom" id="ctnBtn" disabled>Continue</button>');
+            } else {
+                var chlldBtn = $('<button type="submit" class="btn btn-primary marginBottom" id="ctnBtn">Continue</button>');
+            }   
+            
+        } else {
+            if(RPSGame.selectedGame.ChallengedContinue){
+                var chlldBtn = $('<button type="submit" class="btn btn-primary marginBottom" id="ctnBtn" disabled>Player ready</button>');
+            } else {
+                var chlldBtn = $('<button type="submit" class="btn btn-primary marginBottom" id="ctnBtn" disabled>Waiting Player</button>');
+            }
+        }
+        challengedDiv.append(challengedH);
+        challengedDiv.append(br);
+        challengedDiv.append(imgD);
+        challengedDiv.append(selPChlld);
+        challengedDiv.append(chlldWin);
+        challengedDiv.append(chlldBtn);
+        divRow.append(challengedDiv);
+        
+        target.append(titleA);
+        target.append(divRow);
+
+        var backBtn = $('<button type="submit" class="btn btn-danger marginBottom" id="startDom">Back</button>');
+        target.append(backBtn);
+        
+        $("#startDom").on("click",function() {
+            event.preventDefault();
+            RPSGame.startDOM();
+            
+        });
+
+        $(document).delegate("#ctnBtn","click",function() {
+            event.preventDefault();
+            console.log("Algo");
+            RPSGame.continueButton();
+            
+        });
+        
+        // <div class="col-md-10 offset-md-1 topCont" id="topRow">
+        //     <h1 class="marginTop">The winner is: "Winner"</h1>
+        //     <div class="row">
+        //         <div class="col-md-4 offset-md-1 col-sm-4 statsDash" id="continueBtn">
+        //             <h4>Challenger: "Challenger" Selected:</h4>
+        //             <br>
+        //             <img src="./assets/images/piedra.png" height="100px" width="auto">
+        //             <p>rock</p>
+        //             <p>Challenger Wins: ""</p>
+        //             <button type="submit" class="btn btn-primary marginBottom" id="ChllrCtn">Continue</button>
+
+        //         </div>
+        //         <div class="col-md-4 offset-md-2 col-sm-4 statsDash" id="newGameBtn">
+        //             <h4>Challenger: "Challenger" Selected:</h4>
+        //             <br>
+        //             <img src="./assets/images/Papel.png" height="100px" width="auto">
+        //             <p>rock</p>
+        //             <p>Challenger Wins: ""</p>
+        //             <button type="submit" class="btn btn-primary marginBottom" id="ChlldCtn">Continue</button>
+
+        //         </div>
+
+        //     </div>
+            
+        // </div>
 
     },
     "userSelectGame":function(game) {
@@ -399,6 +713,11 @@ var RPSGame = {
                     //console.log(result[element]);
                     if((result[element].Challenged == RPSGame.actualUser || result[element].Challenger == RPSGame.actualUser)&& result[element].gameName == game){
                         RPSGame.selectedGame =result[element];
+                        if(RPSGame.selectedGame.status){
+                            RPSGame.gameDOM();
+                        } else if(!RPSGame.selectedGame.status){
+                            RPSGame.gameStatsDom();
+                        }
                     }
                     //RPSGame.activeGames.push(result[element]);
                 });
@@ -616,6 +935,7 @@ var RPSGame = {
             //call GameDom
             RPSGame.activeGamesGet();
             RPSGame.userGameGet(RPSGame.actualUser);
+            RPSGame.userSelectGame(RPSGame.selectedGame.gameName);
         }
     },
     "continueButton":function() {
@@ -660,14 +980,21 @@ var RPSGame = {
 
             });
             //show general GameDom
+            RPSGame.userSelectGame(RPSGame.selectedGame.gameName);
             
         } else {
             console.log("Wait for other player to continue");
+            RPSGame.userSelectGame(RPSGame.selectedGame.gameName);
         }
     },
     "exitGameButton": function() {
         this.selectedGame = "";
         //showDashDom
+    },
+    "img": {
+        "rock":"./assets/images/piedra.png",
+        "paper":"./assets/images/Papel.png",
+        "scissors":"./assets/images/tijeras2.png"
     }    
 };
 
