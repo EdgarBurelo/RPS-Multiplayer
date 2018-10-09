@@ -622,7 +622,7 @@ var RPSGame = {
         challengerDiv.append(chllrBtn);
         divRow.append(challengerDiv);
 
-        var challengedDiv = $('<div class="col-md-4 offset-md-1 col-sm-4 statsDash" id="challengedDiv">');
+        var challengedDiv = $('<div class="col-md-4 offset-md-2 col-sm-4 statsDash" id="challengedDiv">');
         var challengedH = $('<h4>');
         challengedH.text("Challenged: "+this.selectedGame.Challenged+" Selected:");
         
